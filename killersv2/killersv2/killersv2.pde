@@ -6,31 +6,17 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 boolean one_species=true;
 
-//parameters... THE PARAMETERS COMMENTED HERE WORK WELL, REMEMBER THESE!
-//float dt=.071;
-//float cell_radius=6;
-//int num_cells=0;
-//float eta=.03;
-//int max_num_cells=(int)((1200/cell_radius)*(400/cell_radius));
-//float k=1.9;
-//float growth_rate=.05;
-//float kill_thresh=4;
-//float grid_width=cell_radius;
-//float grid_height=cell_radius;
-//PVector gravity=new PVector(0,28,0);
-//int counter=0;
-
 float dt=.071;
-float cell_radius=7;
+float cell_radius=10;
 int num_cells=0;
-float eta=.01;
+float eta=.05;
 int max_num_cells=(int)((1200/cell_radius)*(400/cell_radius));
-float k=2.9;
+float k=1.9;
 float growth_rate=.05;
 float kill_thresh=4;
 float grid_width=cell_radius;
 float grid_height=cell_radius;
-PVector gravity=new PVector(0,38,0);
+PVector gravity=new PVector(0,28,0);
 int counter=0;
 int global_width=1200;
 int global_height=400;
@@ -57,32 +43,29 @@ boolean save_snapshots=false;
 //initialize objects. Biofilm holds all the bacteria. Grid divides up space to make nearest neighbors search faster
 Biofilm bugs= new Biofilm();
 int growing=1; //if zero then cells don't grow
-int tick=1; //does nothing
 int initial_counter=0;
 int trails=0; //if one then tracers leave trails so that you can look at the entire trajectory of a tracer
 
 
-  
+//Common to all processing sketches  
   void setup(){
-    //directionalLight(200,200,200,0,0,1);
-    //size(600,500,P3D);
-    //lights();
     size(1200,400);
     background(0);
     init();
-    //sphereDetail(6);
   }       
   
+// Initialize sketch  
   void init(){
-      save_snapshots=false;
+      save_snapshots=false; //if true saves pics every so often
       num_cells=0;
-      bugs.bacteria.clear();
+      bugs.bacteria.clear(); // clear all existing cells (in case re-initializing)
+      
       //make a bunch of cells,red and blue. To make just one species use rand_color(0) instead of rand_color(x/600).
       for(int i=0;i<max_num_cells-500;i++){
-      float x=width*random(1);
-      bugs.addBacterium(new Bacterium(new PVector(x,height-height*random(.2),0),cell_radius,rand_color(int(x/600)),false,false,growth_rate));
-      num_cells++;
-    }
+        float x=width*random(1);
+        bugs.addBacterium(new Bacterium(new PVector(x,height-height*random(.2),0),cell_radius,rand_color(int(x/600)),false,false,growth_rate));
+        num_cells++;
+      }
      
       //make the tracers
       for(int j=0;j<1;j++){
@@ -93,79 +76,13 @@ int trails=0; //if one then tracers leave trails so that you can look at the ent
       }
   }
   
-    void init_gaussian(){
-      save_snapshots=true;
-      counter=0;
-      num_cells=0;
-      bugs.bacteria.clear();
-      //make a bunch of cells,red and blue. To make just one species use rand_color(0) instead of rand_color(x/600).
-      for(int i=0;i<10;i++){
-        float x=600+random(100);
-        bugs.addBacterium(new Bacterium(new PVector(x,height,0),cell_radius,rand_color(0),false,false,growth_rate));
-        num_cells++;
-    }
-  }
-  
-  //initializes the array with all blue bacteria, DOESN'T WORK RN
-  void initBlue(){
-      num_cells=0;
-      bugs.bacteria.clear();
-      for(int i=0;i<1200;i++){
-      float x=width*random(1);
-      bugs.addBacterium(new Bacterium(new PVector(x,height-height*random(.15),0),cell_radius,rand_color(1),false,false,growth_rate));
-      num_cells++;
-    }
-      for(int j=0;j<60;j++){
-      Bacterium rheology_b=new Bacterium(new PVector(width*random(1),height-height*random(.15),0),cell_radius,new PVector(0,255,0),false,false,growth_rate);
-      tracers.add(rheology_b);
-      bugs.addBacterium(rheology_b);
-      num_cells++;
-      }
-  }
-  
-  //add a random bacterium to the biofilm
-  void kick(){
-     bugs.addBacterium(new Bacterium(new PVector(width*random(1),height*random(1),0),cell_radius,rand_color(.5),false,false,growth_rate));
-  }
-  
-  //initialize with barrel shape to look at interface motion
-  void initCyl(){
-    num_cells=0;
-    bugs.bacteria.clear();
-    for(int i=0;i<(int)(width/cell_radius);i++){
-      for(int j=0;j<(int)(height/cell_radius);j++){
-        float w2=width/cell_radius;
-        float h=height/cell_radius;
-        double x0=3*w2/4;
-        double y0=(h/2);
-        double r=Math.sqrt(Math.pow(i+1-x0,2)+Math.pow(j+1-y0,2));
-        x0=w2/4;
-        double r2=Math.sqrt(Math.pow(1+i-x0,2)+Math.pow(j+1-y0,2));
-        if(r<y0+5&&r2<y0+5){
-        //if(i<(int)((width*3)/(cell_radius*4))&&i>(int)(width/(cell_radius*4))){
-          bugs.addBacterium(new Bacterium(new PVector((i+.5)*cell_radius,j*cell_radius,0),cell_radius,new PVector(255,0,0),false,false,growth_rate));
-        }
-        else{
-        bugs.addBacterium(new Bacterium(new PVector(i*cell_radius,j*cell_radius,0),cell_radius,new PVector(0,0,255),false,false,growth_rate));
-        }
-        num_cells++;
-      }
-    }
-  }
-  
-  //don't use pack() or tock(), these they don't work yet
-  void pack(){
-    grid.wave();
-      }
-      
-   void tock(){
-     tick=1-tick;
-   }
-      
+  // User control of the sketch through keyboard
   void keyPressed(){
+    
     if(key=='i'){ //standard initialization
       init();
     }
+    
     if(key=='a'){ //quantify activity in active zones (distance from killing interface)
       println("Active Zone: ON");
       delay(500);
@@ -174,85 +91,69 @@ int trails=0; //if one then tracers leave trails so that you can look at the ent
       rheology_running=false;
       first_run=1;
     }
-    if(key=='b'){ //initialize all blue
-      initBlue();
-    }
+    
     if(key=='t'){ //add trails
       trails=1-trails;
       background(0);
     }
+    
     if(key=='l'){ //long-style MSD
       long_rheology_running=true;
       rheology_running=false;
       first_run=1;
     }
+    
     if(key=='g'){ //stop all growth (killing and other behaviors still active)
       growing=1-growing;
     }
+    
     if(key=='m'){//microrheology
       rheology_running=true;
       long_rheology_running=false;
       first_run=1;
       //write_rms();
     }
+    
     if(key=='w'){
       write_rms();
     }
+    
     if(key=='h'){
       write_heights();
     }
+    
     if(key=='f'){
       write_frac_to_top();
     }
+    
     if(key=='v'){
       write_vector_plot();
     }
+    
     if(key=='p'){
       write_pos();
     }
+    
     if(key=='k'){ //turns killing on/off
       killing=1-killing;
-    }
-    if(key=='u'){//init gaussian
-      init_gaussian();
     }
   }
   
 //DRAW FUNCTION, has a lot of stuff going on, but most of it is to do with measuring displacements, fraction to top, etc.
 //The main thing you want to look at is the update() function.
 void draw(){
+  
   //update biofilm and draw bacteria to screen (this function loops continuously)
-  //println("rheology running: "+str(first_run)+" time: "+str(bugs.bacteria.get(0).clock));
-  //if(bugs.bacteria.get(0).clock>1000&&first_run==2){
-  //  write_rms();
-  //  exit();
-  //}
-  //if(bugs.bacteria.get(0).clock>30&&first_run==0){
-  //  long_rheology_running=true;
-  //  rheology_running=false;
-  //  first_run=1;
-  //}
   println(counter);
+  update();
+  rheology();
+  
+  // save snapshots if true
   if(counter%400==0 & save_snapshots==true){
     save("test_snapshot_"+str(counter)+".tif");
   }
-  update();
-  rheology();
-  //println(bugs.bacteria.get(0).clock);
-  if(bugs.bacteria.get(0).clock>50&&killing==0){
-    killing=1;
-    for(Bacterium b: bugs.bacteria){
-      b.clock=0;
-    }
-  }
-  if(killing==1){
-  //frac();
-  }
-  if(bugs.bacteria.get(0).clock>50&&killing==1){
-    //write_frac_to_top();
-    //exit();
-  }
-  //println(int(bugs.bacteria.get(0).clock)%4);
+  
+  // make vector plot if true
   if(vector_plot){
     if(int(bugs.bacteria.get(0).clock)%4==0&&writenow==0){
       writenow=1;
@@ -264,9 +165,9 @@ void draw(){
     else if(int(bugs.bacteria.get(0).clock)%4!=0){
       writenow=0;
     }
-  }
-  }
-//  }
+  } 
+  
+}
   
   
 void frac(){ //for fraction to top, ignore.
@@ -290,7 +191,9 @@ void frac(){ //for fraction to top, ignore.
   frac_to_top.add(frac_count/500.);
 }
 
+
 void rheology(){ 
+  
   if(rheology_running){
     if(first_run==1){
       if(trails==1){
@@ -312,6 +215,7 @@ void rheology(){
       }
     }
   }
+  
   if(long_rheology_running){
     if(first_run==1){
       if(trails==1){
@@ -342,6 +246,8 @@ void rheology(){
       }
     }
   }
+  
+  
   if(active_zone_rheology_running){
     if(first_run==1){
       for(Bacterium b:bugs.bacteria){
@@ -548,6 +454,7 @@ void update(){
 void write_rms(){
       //ArrayList<Float> heights=grid.heights();
       int bin_counter=0;
+      
       if(active_zone_rheology_running==true){
         try{
           println("Trying to write active zones to 'dispData.txt'");
@@ -574,6 +481,7 @@ void write_rms(){
           e.printStackTrace();
         }
       }
+      
       if(trails==1&&rheology_running==true){
         try{
           println("Trying to write displacements to 'dispData.txt'");
@@ -592,10 +500,11 @@ void write_rms(){
           e.printStackTrace();
         }
       }
+      
       else if(rheology_running==true){      
         try{
           println("Trying to write displacements to 'dispData.txt'");
-          FileWriter writer=new FileWriter("dispData.txt");
+          FileWriter writer=new FileWriter("dispData"+str(counter)+".txt");
           for(Bacterium b:bugs.bacteria){
             writer.write(str(PVector.sub(b.rf,b.r0).mag())+", ");
             writer.write('\n');
@@ -610,6 +519,7 @@ void write_rms(){
           e.printStackTrace();
         }
       }
+      
     else if(long_rheology_running==true){
       if (trails==0){
         try{
