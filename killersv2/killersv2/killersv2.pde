@@ -10,14 +10,14 @@ float cell_radius=10;
 int num_cells=0;
 float eta=.05;
 int max_num_cells=(int)((1200/cell_radius)*(400/cell_radius));
-float k=1.9;
+float k=.39;
 float growth_rate=.39;
 float kill_thresh=2;
 float grid_width=cell_radius;
 float grid_height=cell_radius;
-PVector gravity=new PVector(0,28,0);
+PVector gravity=new PVector(0,0,0);
 int counter=0;
-int global_width=1200;
+int global_width=600;
 int global_height=400;
 Grid grid=new Grid(grid_height,grid_width);
 boolean rheology_running;
@@ -39,7 +39,7 @@ int trails=0; //if one then tracers leave trails so that you can look at the ent
 
 //Common to all processing sketches  
 void setup(){
-  size(1200,400);
+  size(600,400);
   background(0);
   init();
 }       
@@ -52,7 +52,7 @@ void init(){
     //make a bunch of cells,red and blue. To make just one species use rand_color(0) instead of rand_color(x/600).
     for(int i=0;i<max_num_cells-500;i++){
       float x=width*random(1);
-      bugs.addBacterium(new Bacterium(new PVector(x,height-height*random(.2),0),cell_radius,rand_color(0),false,false,growth_rate));
+      bugs.addBacterium(new Bacterium(new PVector(x,height-height*random(1),0),cell_radius,rand_color(0),false,false,growth_rate));
       num_cells++;
     }
    
@@ -157,9 +157,9 @@ PVector movement(Bacterium bug, ArrayList<Bacterium> bacteria, float cut_off, fl
   bug.enemy_count=0;//counter for number of enemy neighbors
   for(Bacterium b:bacteria){
     PVector disp=PVector.sub(b.r,bug.r);
-    if(abs(height-bug.r.y)<cell_radius){
-      f.add(new PVector(0,height-bug.r.y,0));
-    }
+    //if(abs(height-bug.r.y)<cell_radius){
+    //  f.add(new PVector(0,height-bug.r.y,0));
+    //}
     if(disp.mag()<1.1*cell_radius){
       f.add(disp.normalize().mult(-1).mult(1));
     }
@@ -233,7 +233,7 @@ void update(){
                   }
     while (iter.hasNext()) {
       Bacterium b = iter.next();
-      if (b.radius>1.2*cell_radius){
+      if (b.radius>1.05*cell_radius){
         if(random(1)>.9){
           if(b.species_color.y==0){ //if not tracer
         to_divide.add(b);
@@ -272,6 +272,8 @@ void write_rms(){
     try{
       println("Trying to write displacements to 'dispData.txt'");
       FileWriter writer=new FileWriter("d_data//dispData.txt");
+      writer.write("time, pos");
+      writer.write('\n');
       for(Bacterium b:tracers){
         writer.write(str(PVector.sub(b.rf,b.r0).mag())+", ");
         writer.write('\n');
@@ -291,10 +293,15 @@ void write_rms(){
     try{
       println("Trying to write displacements to 'dispData.txt'");
       FileWriter writer=new FileWriter("dispData"+str(counter)+".txt");
+      writer.write("time, pos");
+      writer.write('\n');
+      int bug_counter=0;
       for(Bacterium b:bugs.bacteria){
+        writer.write(str(bug_counter)+", ");
+        writer.write(str(b.clock)+", ");
         writer.write(str(PVector.sub(b.rf,b.r0).mag())+", ");
         writer.write('\n');
-        writer.write(str(b.clock)+", ");
+        bug_counter++;
       }
       writer.flush();
       writer.close();

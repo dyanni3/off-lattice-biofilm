@@ -37,6 +37,8 @@ class Bacterium {
     r.x=Math.max(0,r.x);
     r.y=Math.min(height,r.y);
     r.y=Math.max(0,r.y);
+    //r.x=pb(global_width,r.x);
+    //r.y=pb(global_height,r.y);
     //r.z=Math.min(height/2,r.z);
     //r.z=Math.max(width/4,r.z);
     if(species_color.x==255){
@@ -45,7 +47,7 @@ class Bacterium {
     
     stroke(60);
     pushMatrix();
-    translate(r.x, r.y-10);
+    translate(r.x, r.y);
     //sphere(14);
     ellipse(0,0,radius,radius);
     popMatrix();
@@ -56,7 +58,7 @@ class Bacterium {
     fill(species_color.x,species_color.y, species_color.z,60);
     stroke(60);
     pushMatrix();
-    translate(r.x, r.y-10);
+    translate(r.x, r.y);
     //sphere(14);
     ellipse(0,0,radius,radius);
     popMatrix();  
@@ -67,7 +69,7 @@ class Bacterium {
     fill(species_color.x,species_color.y, species_color.z);
     noStroke();
     pushMatrix();
-    translate(r.x, r.y-10);
+    translate(r.x, r.y);
     //sphere(14);
     ellipse(0,0,radius,radius);
     popMatrix();  
@@ -76,7 +78,7 @@ class Bacterium {
     fill(species_color.x,species_color.y, species_color.z);
     noStroke();
     pushMatrix();
-    translate(r.x, r.y-10);
+    translate(r.x, r.y);
     //sphere(14);
     ellipse(0,0,radius/4,radius/4);
     popMatrix();  
