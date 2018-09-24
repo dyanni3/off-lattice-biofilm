@@ -77,6 +77,7 @@ int growing=1;
     }
   
   void draw(){
+    background(0);
     counter++;
     //println("{",str(millis()),", ",str(num_cells),"}");
     println(counter);
@@ -115,7 +116,7 @@ int growing=1;
       }
     }
     for(Bacterium b:bugs.bacteria){
-      if(counter%2==0){
+      if(counter%1==0){
       b.show();
       }
       if(num_cells<max_num_cells&&growing==1){
