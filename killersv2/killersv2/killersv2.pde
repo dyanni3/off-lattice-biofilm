@@ -19,16 +19,16 @@ boolean one_species=true;
 //int counter=0;
 
 float dt=.071;
-float cell_radius=7;
+float cell_radius=17;
 int num_cells=0;
-float eta=.01;
+float eta=50;
 int max_num_cells=(int)((1200/cell_radius)*(400/cell_radius));
-float k=2.9;
-float growth_rate=.05;
-float kill_thresh=4;
+float k=.9;
+float growth_rate=.15;
+float kill_thresh=2;
 float grid_width=cell_radius;
 float grid_height=cell_radius;
-PVector gravity=new PVector(0,38,0);
+PVector gravity=new PVector(0,30,0);
 int counter=0;
 int global_width=1200;
 int global_height=400;
@@ -83,7 +83,7 @@ int trails=0; //if one then tracers leave trails so that you can look at the ent
     }
      
       //make the tracers
-      for(int j=0;j<1;j++){
+      for(int j=0;j<0;j++){
       Bacterium rheology_b=new Bacterium(new PVector(width*random(1),height-height*random(.25),0),cell_radius,new PVector(0,255,0),false,false,growth_rate);
       tracers.add(rheology_b);
       bugs.addBacterium(rheology_b);
@@ -472,7 +472,7 @@ void update(){
           
       
       //this bacterium gets pushed on by neighbors closer than its cell radius to itself (spring force, viscous response)
-      b.r.add(movement(b,neighbors,1.2*cell_radius,k).mult(eta*dt));
+      b.r.add(movement(b,neighbors,1.2*cell_radius,k).mult(dt/eta));
     }
     
     //figure out which cells are ready to reproduce, looks needlessly complicated because there's stuff to acount for if reproduction at bottom layer only, or at top only, etc.
@@ -486,8 +486,8 @@ void update(){
                   }
     while (iter.hasNext()) {
       Bacterium b = iter.next();
-      if (b.radius>1.2*cell_radius){
-        if(random(1)>.9){
+      if (b.radius>1.02*cell_radius){
+        if(random(1)>.99){
           if(b.species_color.y==0){
             if(bottom_only){
                   float h_div=(height-ymin);

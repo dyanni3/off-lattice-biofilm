@@ -41,7 +41,7 @@ class Bacterium {
     //r.z=Math.max(width/4,r.z);
     if(species_color.x==255){
       if(trails==0){
-      fill(species_color.x/1.5,species_color.y, species_color.z+20,50);
+      fill(species_color.x/1,species_color.y, species_color.z,100);
     
     stroke(60);
     pushMatrix();
@@ -53,7 +53,7 @@ class Bacterium {
   }
   else if(species_color.z==255){
     if(trails==0){
-    fill(species_color.x,species_color.y, species_color.z,60);
+    fill(species_color.x,species_color.y, species_color.z,100);
     stroke(60);
     pushMatrix();
     translate(r.x, r.y-10);
